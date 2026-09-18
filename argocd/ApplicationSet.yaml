@@ -5,26 +5,25 @@ metadata:
   namespace: argocd
 spec:
   generators:
-  - list:
-      elements:
-      - stage: test
-      - stage: test2
-      - stage: uat
-      - stage: prod
+  - git:
+      repoURL: https://github.com/victorchu-dp/kargo-demo
+      revision: main
+      directories:
+      - path: stages/*
   template:
     metadata:
-      name: kargo-demo-{{stage}}
+      name: kargo-demo-{{path.basename}}
       annotations:
-        kargo.akuity.io/authorized-stage: kargo-demo:{{stage}}
+        kargo.akuity.io/authorized-stage: kargo-demo:{{path.basename}}
     spec:
       project: default
       source:
         repoURL: https://github.com/victorchu-dp/kargo-demo
-        targetRevision: stage/{{stage}}
+        targetRevision: stage/{{path.basename}}
         path: .
       destination:
         server: https://kubernetes.default.svc
-        namespace: kargo-demo-{{stage}}
+        namespace: kargo-demo-{{path.basename}}
       syncPolicy:
         syncOptions:
         - CreateNamespace=true
